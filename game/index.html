@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skylantern Post — 12 islands · 30 rings · 6 keepers · 4 upgrades</title>
+<style>
+  :root{
+    --navy:#0d1f3c; --navy2:#12294d; --brass:#c99b4a; --brass-hi:#ffd98a; --cream:#f6ead0;
+    --ink:#f4ead2; --coral:#e2543e; --coral-hi:#ff7a5c; --teal:#2e8f86; --teal-hi:#43c2b4;
+    --good:#9fe8b1;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#0b1626;color:var(--ink);
+    font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif}
+  #gl{position:fixed;inset:0;display:block}
+  body.frozen *,body.frozen *::before,body.frozen *::after{animation:none!important;transition:none!important}
+  body.menu .hud{display:none!important}
+  body.menu #chips,body.menu .tape{display:none!important}
+
+  /* ---------- shared chrome ---------- */
+  .panel{
+    background:linear-gradient(165deg,rgba(13,31,60,.92),rgba(18,41,77,.86));
+    border:2px solid var(--brass); border-radius:14px;
+    box-shadow:0 10px 28px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,217,138,.35), inset 0 0 0 1px rgba(0,0,0,.35);
+    padding:14px 16px; backdrop-filter:blur(3px);
+  }
+  .panel h3{margin:0 0 9px;font-size:12px;letter-spacing:.22em;color:var(--brass-hi);font-weight:800}
+  .btn{
+    pointer-events:auto; cursor:pointer; border:0; border-radius:12px; color:#fff;
+    font-family:inherit; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+    padding:13px 26px; font-size:15px; min-width:250px; position:relative; overflow:hidden;
+    text-shadow:0 1px 2px rgba(0,0,0,.35);
+    box-shadow:0 5px 0 rgba(0,0,0,.35), 0 10px 20px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.45);
+    transition:transform .08s ease, box-shadow .08s ease, filter .12s ease;
+  }
+  .btn::after{content:"";position:absolute;left:0;right:0;top:0;height:48%;
+    background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));pointer-events:none}
+  .btn:hover{filter:brightness(1.1); transform:translateY(-1px)}
+  .btn:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.35), 0 6px 12px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.4)}
+  .btn.primary{background:linear-gradient(180deg,var(--coral-hi),var(--coral) 55%,#b83a28)}
+  .btn.teal{background:linear-gradient(180deg,var(--teal-hi),var(--teal) 55%,#1f6a62)}
+  .btn.navy{background:linear-gradient(180deg,#3d5f94,#274a7d 55%,#1a3560)}
+  .btn.small{min-width:0;padding:10px 18px;font-size:13px}
+  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .keycap{display:inline-block;min-width:24px;text-align:center;padding:2px 7px;border-radius:6px;
+    background:linear-gradient(180deg,#fff8e8,#e8d9b8);color:#4a3517;font-weight:800;font-size:12px;
+    box-shadow:0 2px 0 #b89b5e, inset 0 1px 0 #fff; margin:0 2px}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+    background:rgba(13,31,60,.78);border:1px solid rgba(255,217,138,.55);font-size:12.5px;font-weight:700;letter-spacing:.04em}
+  .chip b{color:var(--brass-hi)}
+
+  /* ---------- HUD ---------- */
+  .hud{position:fixed;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.55);z-index:5}
+  #topbar{top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;padding:52px 20px 14px}
+  #brand h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:27px;letter-spacing:.1em;font-weight:900;
+    background:linear-gradient(180deg,#fff3c4,#ffd98a 55%,#d99a3d);-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+  #brand p{margin:3px 0 0;font-size:11.5px;letter-spacing:.16em;color:#ffeec4;font-weight:700}
+  #compasswrap{position:absolute;left:50%;top:12px;transform:translateX(-50%);text-align:center}
+  #chips{position:fixed;left:18px;top:12px;display:flex;gap:7px;z-index:6}
+  .fchip{pointer-events:auto;cursor:pointer;border:1px solid rgba(255,217,138,.55);border-radius:7px;
+    background:rgba(8,20,38,.82);color:#ffeec4;font-family:inherit;font-weight:800;font-size:11px;letter-spacing:.1em;padding:7px 11px}
+  .fchip:hover{background:rgba(20,44,80,.9)}
+  .tape{position:fixed;top:500px;z-index:5;pointer-events:none}
+  #tapewrap-l{left:16px} #tapewrap-r{right:16px;top:500px}
+  .tape canvas{border:1.5px solid rgba(255,217,138,.5);border-radius:9px;background:rgba(8,20,38,.78)}
+  .tape p{margin:4px 0 0;text-align:center;font-size:10.5px;letter-spacing:.2em;color:#ffeec4;font-weight:800}
+  #compass{border:1px solid rgba(255,217,138,.5);border-radius:8px;background:rgba(8,20,38,.72)}
+  #scorebox{text-align:right;font-size:12px;letter-spacing:.14em;font-weight:700;line-height:1.35}
+  #lantern-pips{margin:4px 0 5px;line-height:1}
+  #scorebox .big{font-size:26px;color:var(--brass-hi);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  #lantern-pips{display:flex;gap:3px;justify-content:flex-end;margin:5px 0 6px}
+  #lantern-pips svg{width:15px;height:19px}
+  #lantern-pips .off{opacity:.28;filter:grayscale(1)}
+  #instruments{left:18px;top:138px;width:212px}
+  #horizon{width:100%;height:54px;border-radius:9px;border:2px solid rgba(255,217,138,.45);
+    box-shadow:inset 0 0 12px rgba(0,0,0,.4)}
+  .gauge{display:flex;justify-content:space-between;font-size:13px;margin:3px 0;font-weight:600}
+  .gauge b{font-variant-numeric:tabular-nums;color:#fff}
+  .bar{height:10px;border-radius:6px;background:rgba(255,255,255,.13);overflow:hidden;margin:3px 0 8px;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,#ffb347,#ffd98a);border-radius:6px;transition:width .3s ease}
+  .bar.low i{background:linear-gradient(90deg,#e2543e,#ff9d5c)}
+  #lowfuel{display:none;color:#ffb3a0;font-weight:800;font-size:12px;letter-spacing:.12em;margin-top:2px}
+  #mission{right:18px;top:158px;width:280px;font-size:13.5px;line-height:1.45}
+  #keeperrow{display:flex;gap:10px;align-items:center;margin-bottom:6px}
+  #keepermedal{width:40px;height:40px;border-radius:50%;flex:0 0 40px;display:flex;align-items:center;justify-content:center;
+    font-family:Georgia,serif;font-weight:900;font-size:19px;color:#4a3517;
+    background:radial-gradient(circle at 35% 30%,#fff3c4,#ffd98a 60%,#c99b4a);border:2px solid #8a6a2a;
+    box-shadow:0 3px 8px rgba(0,0,0,.4)}
+  #mission .keeper{font-size:15.5px;font-weight:800;color:#fff;line-height:1.25}
+  #request{font-style:italic;color:#ffeec4}
+  #goals{list-style:none;margin:10px 0 4px;padding:0}
+  #goals li{display:flex;gap:8px;align-items:center;margin:3px 0;font-weight:600}
+  #goals .tick{width:17px;height:17px;border-radius:50%;flex:0 0 17px;border:2px solid rgba(255,217,138,.7);
+    display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#123}
+  #goals li.done{color:var(--good)}
+  #goals li.done .tick{background:var(--good);border-color:var(--good);color:#0d2b18;font-weight:900}
+  .pipslabel{font-size:10.5px;letter-spacing:.2em;color:var(--brass-hi);font-weight:800;margin:6px 0 3px}
+  #ringpips{display:flex;flex-wrap:wrap;gap:2px}
+  #ringpips i{width:6px;height:6px;border-radius:50%;border:1.5px solid rgba(255,217,138,.75)}
+  #ringpips i.hit{background:var(--good);border-color:var(--good)}
+  #ringpips i.next{background:#fff;border-color:#fff;box-shadow:0 0 6px #fff}
+  #delivpips{display:flex;gap:5px}
+  #delivpips svg{width:16px;height:20px}
+  #delivpips .off{opacity:.3;filter:grayscale(1)}
+  #bottombar{left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;padding:14px 18px}
+  #mapwrap{text-align:center}
+  #minimap{border:2px solid var(--brass);border-radius:50%;background:rgba(6,18,16,.92);
+    box-shadow:0 8px 20px rgba(0,0,0,.45), inset 0 0 24px rgba(80,255,190,.12)}
+  #mapwrap p{margin:5px 0 0;font-size:11px;letter-spacing:.18em;color:#ffeec4;font-weight:700}
+  #controls{font-size:12px;line-height:1.9;text-align:right;color:#ffeec4;background:rgba(8,20,38,.55);
+    border:1px solid rgba(255,217,138,.35);border-radius:10px;padding:8px 12px}
+  #objwrap{left:50%;top:64px;transform:translateX(-50%);text-align:center}
+  #objarrow{display:inline-block;font-size:26px;color:#fff3c4;text-shadow:0 0 10px rgba(255,201,106,.9),0 2px 3px rgba(0,0,0,.5);transition:transform .15s linear}
+  #objdist{font-size:12px;font-weight:800;letter-spacing:.14em;color:#ffeec4}
+  #toast{top:118px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:800;color:#fff;
+    background:linear-gradient(180deg,rgba(46,143,134,.92),rgba(31,106,98,.92));border:1.5px solid #bff3ec;
+    padding:9px 20px;border-radius:999px;display:none;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+  #popups{left:50%;top:42%;transform:translateX(-50%);text-align:center}
+  .popup{font-size:26px;font-weight:900;color:#fff3c4;letter-spacing:.06em;
+    text-shadow:0 0 12px rgba(255,201,106,.85),0 2px 3px rgba(0,0,0,.6);animation:poprise 1.6s ease-out forwards}
+  @keyframes poprise{0%{opacity:0;transform:translateY(14px) scale(.8)}18%{opacity:1;transform:translateY(0) scale(1.08)}100%{opacity:0;transform:translateY(-44px) scale(1)}}
+  #banner{top:34%;left:50%;transform:translate(-50%,-50%);text-align:center;display:none}
+  #banner h2{margin:0;font-family:Georgia,serif;font-size:46px;letter-spacing:.1em;color:var(--brass-hi)}
+  #banner p{font-size:16px;margin:8px 0 0}
+
+  /* ---------- screens ---------- */
+  .screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:10;
+    background:radial-gradient(ellipse at center,rgba(6,14,28,.32),rgba(6,14,28,.66));pointer-events:none}
+  .screen .panel{pointer-events:auto}
+  .screen.open{display:flex}
+  .card{max-width:680px;width:92%;text-align:center;padding:28px 30px}
+  .card h2{margin:0 0 6px;font-family:Georgia,"Times New Roman",serif;font-size:33px;letter-spacing:.08em;color:var(--brass-hi)}
+  .card .sub{font-size:14.5px;line-height:1.55;color:#ffeec4;margin:0 auto;max-width:540px}
+  .menulogo{text-align:center;margin-bottom:6px}
+  .menulogo .lantern{width:54px;height:66px;filter:drop-shadow(0 0 14px rgba(255,201,106,.8))}
+  .menulogo h1{margin:2px 0 0;font-family:Georgia,"Times New Roman",serif;font-size:56px;letter-spacing:.06em;font-weight:900;line-height:1.02;
+    background:linear-gradient(180deg,#fff8dd,#ffd98a 52%,#d99a3d 78%,#a8742a);-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 3px 3px rgba(0,0,0,.55))}
+  .ribbon{display:inline-block;margin-top:10px;padding:6px 22px;border-radius:4px;position:relative;
+    background:linear-gradient(180deg,#e2543e,#b83a28);color:#fff;font-weight:800;letter-spacing:.24em;font-size:13px;
+    box-shadow:0 4px 10px rgba(0,0,0,.4)}
+  .menucol{display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:24px}
+  .statstrip{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .titlefoot{margin-top:14px;font-size:12px;color:#cfe0f5;letter-spacing:.08em}
+  .objrow{display:flex;gap:12px;align-items:center;text-align:left;background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,217,138,.3);border-radius:12px;padding:11px 14px;margin:10px 0}
+  .objrow .ic{font-size:24px;flex:0 0 34px;text-align:center}
+  .objrow b{color:#fff}
+  .keeperchips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:14px 0 2px}
+  .helpgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 4px;text-align:left}
+  .helpcard{background:rgba(255,255,255,.05);border:1px solid rgba(255,217,138,.3);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.5}
+  .helpcard b{color:#fff;display:block;margin-bottom:4px}
+  .hangargrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 4px}
+  .upcard{background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:1.5px solid rgba(255,217,138,.4);border-radius:14px;padding:16px 14px;text-align:center}
+  .upcard .ic{font-size:34px}
+  .upcard h4{margin:7px 0 3px;font-size:16px;color:#fff}
+  .upcard p{margin:0;font-size:13px;color:#ffeec4}
+  .upcard .st{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.12em}
+  .upcard .st.on{background:var(--good);color:#0d2b18}
+  .upcard .st.next{background:var(--brass-hi);color:#4a3517}
+  .upcard .st.lock{background:rgba(255,255,255,.14);color:#cfe0f5}
+  .upcard.locked{opacity:.62}
+  .gradestamp{width:104px;height:104px;border-radius:50%;margin:6px auto 4px;display:flex;align-items:center;justify-content:center;
+    font-family:Georgia,serif;font-size:58px;font-weight:900;color:#4a3517;transform:rotate(-8deg);
+    background:radial-gradient(circle at 35% 30%,#fff8dd,#ffd98a 58%,#c99b4a);border:3px solid #8a6a2a;
+    box-shadow:0 8px 22px rgba(0,0,0,.45), inset 0 0 0 4px rgba(255,255,255,.35)}
+  .stattiles{display:flex;justify-content:center;gap:12px;margin:16px 0 4px;flex-wrap:wrap}
+  .tile{background:rgba(255,255,255,.06);border:1px solid rgba(255,217,138,.35);border-radius:12px;padding:10px 16px;min-width:104px}
+  .tile b{display:block;font-size:23px;color:#fff;font-variant-numeric:tabular-nums}
+  .tile span{font-size:11px;letter-spacing:.16em;color:var(--brass-hi);font-weight:800}
+  #res-upgrade{display:none;margin:14px auto 0;max-width:460px;background:linear-gradient(180deg,rgba(255,217,138,.22),rgba(255,217,138,.08));
+    border:1.5px solid var(--brass-hi);border-radius:12px;padding:11px 16px;font-size:14px}
+  #res-upgrade b{color:var(--brass-hi)}
+
+  /* ---------- route planner (parchment chart) ---------- */
+  #route{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:11;
+    background:rgba(6,14,28,.55);pointer-events:none}
+  #route.open{display:flex}
+  #routecard{width:min(800px,94%);pointer-events:auto;color:#4a3517;
+    background:linear-gradient(165deg,#f9efD6,#f3e5c3 60%,#ecd9ac);border:2px solid #b89b5e;border-radius:14px;
+    box-shadow:0 14px 34px rgba(0,0,0,.5), inset 0 0 40px rgba(184,155,94,.35);padding:20px 22px}
+  #routecard h2{margin:0 0 2px;font-family:Georgia,serif;font-size:25px;letter-spacing:.1em;color:#6b4a1e}
+  #routecard p{margin:0 0 10px;font-size:13.5px;color:#6b4a1e}
+  #bigmap{width:100%;border-radius:10px;border:1.5px solid #b89b5e}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;font-weight:700;color:#6b4a1e;margin-top:10px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<!-- HUD -->
+<div id="chips">
+  <button class="fchip" id="chip-cam">CAM: CHASE</button>
+  <button class="fchip" id="chip-sfx">SFX: ON</button>
+  <button class="fchip" id="chip-pause">PAUSE</button>
+</div>
+<div class="tape" id="tapewrap-l"><canvas id="tapel" width="72" height="130"></canvas><p>KTS</p></div>
+<div class="tape" id="tapewrap-r"><canvas id="taper" width="72" height="130"></canvas><p>ALT M</p></div>
+<div class="hud" id="topbar">
+  <div id="brand"><h1>SKYLANTERN POST</h1><p>DAWN MAIL RUN · 12 ISLANDS · 30 RINGS · 6 KEEPERS</p></div>
+  <div id="compasswrap"><canvas id="compass" width="360" height="30"></canvas></div>
+  <div id="scorebox">SCORE<br><span class="big" id="score">0</span>
+    <div id="lantern-pips"></div>
+    TIME <span id="clock">0:00</span>
+  </div>
+</div>
+
+<div class="hud" id="objwrap"><div id="objarrow">➤</div><div id="objdist">—</div></div>
+
+<div class="hud panel" id="instruments">
+  <h3>✦ INSTRUMENTS</h3>
+  <canvas id="horizon" width="332" height="128"></canvas>
+  <div class="gauge"><span>Altitude</span><b id="alt">0 m</b></div>
+  <div class="gauge"><span>Speed</span><b id="spd">0 kt</b></div>
+  <div class="gauge"><span>Heading</span><b id="hdg">000°</b></div>
+  <div class="gauge"><span>Fuel</span><b id="fuelpct">100%</b></div>
+  <div class="bar" id="fuelwrap"><i id="fuelbar" style="width:100%"></i></div>
+  <div id="lowfuel">⚠ LOW FUEL — HEAD HOME</div>
+  <div class="gauge"><span>Wind</span><b id="wind">calm</b></div>
+  <div class="gauge"><span>Next ring</span><b id="ringdist">—</b></div>
+</div>
+
+<div class="hud panel" id="mission">
+  <h3>✦ DELIVERY ORDER</h3>
+  <div id="keeperrow"><div id="keepermedal">M</div>
+    <div><div class="keeper" id="keeper">Keeper Mara · Brine Isle</div>
+    <div id="request">“Three lanterns for the harbor festival, before the mist lifts.”</div></div></div>
+  <ul id="goals"></ul>
+  <div class="pipslabel">RINGS</div><div id="ringpips"></div>
+  <div class="pipslabel">KEEPERS LIT</div><div id="delivpips"></div>
+</div>
+
+<div class="hud" id="bottombar">
+  <div id="mapwrap"><canvas id="minimap" width="210" height="210" style="width:190px;height:190px"></canvas><p>RADAR · M FOR CHART</p></div>
+  <div id="controls"><span class="keycap">↑↓</span> pitch · <span class="keycap">←→</span> bank · <span class="keycap">A</span><span class="keycap">D</span> rudder<br>
+  <span class="keycap">Shift</span> boost · <span class="keycap">Space</span> drop lantern · <span class="keycap">C</span> camera · <span class="keycap">M</span> chart · <span class="keycap">Esc</span> pause</div>
+</div>
+
+<div class="hud" id="toast"></div>
+<div class="hud" id="popups"></div>
+<div class="hud" id="banner"><h2 id="bannertitle">MISSION COMPLETE</h2><p id="bannersub"></p></div>
+
+<!-- TITLE -->
+<div class="screen" id="screen-title"><div>
+  <div class="menulogo">
+    <svg class="lantern" viewBox="0 0 54 66"><ellipse cx="27" cy="34" rx="19" ry="24" fill="#ffca6a"/><ellipse cx="27" cy="34" rx="19" ry="24" fill="none" stroke="#b8742a" stroke-width="2"/><path d="M27 10v48M14 16c6 10 6 26 0 36M40 16c-6 10-6 26 0 36" stroke="#b8742a" stroke-width="1.6" fill="none"/><rect x="21" y="4" width="12" height="6" rx="2" fill="#8a5a2a"/><rect x="21" y="56" width="12" height="6" rx="2" fill="#8a5a2a"/><circle cx="27" cy="34" r="5" fill="#fff3c4"/></svg>
+    <h1>SKYLANTERN<br>POST</h1>
+    <div class="ribbon">DAWN MAIL RUN</div>
+  </div>
+  <div class="menucol">
+    <button class="btn primary" data-action="play">✈ Fly the Dawn Route</button>
+    <button class="btn teal" data-action="help">How to Play</button>
+    <button class="btn navy" data-action="route">Route Chart</button>
+    <button class="btn navy" data-action="hangar">Hangar &amp; Upgrades</button>
+  </div>
+  <div class="statstrip">
+    <span class="chip"><b>12</b> islands</span><span class="chip"><b>30</b> rings</span>
+    <span class="chip"><b>6</b> keepers</span><span class="chip"><b>4</b> upgrades</span>
+    <span class="chip">Best <b id="title-best">—</b></span>
+  </div>
+  <div class="titlefoot">Thread the rings · light every keeper · bring the post plane home before the fuel runs dry</div>
+</div></div>
+
+<!-- BRIEFING -->
+<div class="screen" id="screen-brief"><div class="panel card">
+  <h2>DAWN RUN BRIEFING</h2>
+  <p class="sub">The mist is lifting over the Lantern Archipelago. Six keepers are waiting on their lights, and the little post plane is fueled and ready.</p>
+  <div class="objrow"><div class="ic">⭕</div><div><b>Thread all 30 rings</b> — follow the glowing course from island to island. Every 6th ring earns a bonus lantern.</div></div>
+  <div class="objrow"><div class="ic">🏮</div><div><b>Deliver to all 6 keepers</b> — drop a lantern (<span class="keycap">Space</span>) near each keeper's beacon to light their island.</div></div>
+  <div class="objrow"><div class="ic">🛬</div><div><b>Land home at Home Strip</b> — mind your fuel and the crosswind. Leftover fuel becomes bonus points.</div></div>
+  <div class="keeperchips" id="brief-keepers"></div>
+  <div class="btnrow"><button class="btn primary" data-action="takeoff">Take Off ✈</button>
+  <button class="btn navy small" data-action="title">Back</button></div>
+</div></div>
+
+<!-- HOW TO PLAY -->
+<div class="screen" id="screen-help"><div class="panel card">
+  <h2>HOW TO PLAY</h2>
+  <p class="sub">You fly the dawn mail route in chase view. The brass arrow at the top of the screen always points to your next ring.</p>
+  <div class="helpgrid">
+    <div class="helpcard"><b>Steer the plane</b><span class="keycap">↑</span><span class="keycap">↓</span> pitch · <span class="keycap">←</span><span class="keycap">→</span> bank · <span class="keycap">A</span><span class="keycap">D</span> rudder. The mouse steers too.</div>
+    <div class="helpcard"><b>Boost &amp; drop</b><span class="keycap">Shift</span> boost (burns fuel faster) · <span class="keycap">Space</span> drop a lantern over a keeper's island.</div>
+    <div class="helpcard"><b>Charts &amp; pause</b><span class="keycap">M</span> route planner · <span class="keycap">Esc</span> pause menu · <span class="keycap">R</span> restart the run.</div>
+    <div class="helpcard"><b>Scoring</b>Rings +80 · deliveries +220 · shore lanterns +15 · leftover fuel ×4. Win runs to unlock hangar upgrades.</div>
+  </div>
+  <div class="btnrow"><button class="btn primary" data-action="play">Fly the Dawn Route</button>
+  <button class="btn navy small" data-action="title">Back</button></div>
+</div></div>
+
+<!-- HANGAR -->
+<div class="screen" id="screen-hangar"><div class="panel card">
+  <h2>HANGAR &amp; UPGRADES</h2>
+  <p class="sub">Postmaster Rue fits one new part after every completed route. Fitted parts stay on the plane for good.</p>
+  <div class="hangargrid" id="hangar-cards"></div>
+  <div class="btnrow"><button class="btn primary" data-action="play">Fly the Dawn Route</button>
+  <button class="btn navy small" data-action="title">Back</button></div>
+</div></div>
+
+<!-- PAUSE -->
+<div class="screen" id="screen-pause"><div class="panel card">
+  <h2>PAUSED</h2>
+  <p class="sub">The post plane holds its circle over the mist. The route will wait.</p>
+  <div class="menucol">
+    <button class="btn primary" data-action="resume">Resume Flight</button>
+    <button class="btn teal" data-action="route">Route Chart</button>
+    <button class="btn navy" data-action="restart">Restart Run</button>
+    <button class="btn navy" data-action="title">Quit to Title</button>
+  </div>
+</div></div>
+
+<!-- RESULTS -->
+<div class="screen" id="screen-results"><div class="panel card">
+  <div class="gradestamp" id="res-grade">S</div>
+  <h2 id="res-title">ROUTE COMPLETE</h2>
+  <p class="sub" id="res-body">Every keeper lit, every ring threaded.</p>
+  <div class="stattiles">
+    <div class="tile"><b id="res-rings">0/30</b><span>RINGS</span></div>
+    <div class="tile"><b id="res-deliv">0/6</b><span>DELIVERIES</span></div>
+    <div class="tile"><b id="res-time">0:00</b><span>TIME</span></div>
+    <div class="tile"><b id="res-score">0</b><span>SCORE</span></div>
+  </div>
+  <div id="res-upgrade"></div>
+  <div class="btnrow"><button class="btn primary" data-action="takeoff">Fly Again ✈</button>
+  <button class="btn teal small" data-action="hangar">Hangar</button>
+  <button class="btn navy small" data-action="title">Title</button></div>
+</div></div>
+
+<!-- ROUTE PLANNER -->
+<div id="route"><div id="routecard">
+  <h2>✦ ROUTE PLANNER</h2>
+  <p id="routetext">Plotted course: Home Strip → Brine → Gullrock → Ember Cay → Lowtide → Mistral Point → home. The dashed line is the safe way through the mist.</p>
+  <canvas id="bigmap" width="752" height="420"></canvas>
+  <div class="legend">
+    <span><i style="background:#c99b4a"></i>ring course</span>
+    <span><i style="background:#9fe8b1"></i>ring threaded</span>
+    <span><i style="background:#e2543e"></i>keeper beacon</span>
+    <span><i style="background:#274a7d"></i>your plane</span>
+  </div>
+  <div class="btnrow"><button class="btn navy small" data-action="closeroute">Close Chart</button></div>
+</div></div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
